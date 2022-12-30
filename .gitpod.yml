@@ -1,0 +1,8 @@
+# package.json repo à changer
+
+tasks:
+  - name: Configuration
+    init: npm install -g pnpm
+    command: pnpm install
+
+
