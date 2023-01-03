@@ -34,9 +34,9 @@
 "otherConfig": "done.invoke.otherConfig";
         };
         missingImplementations: {
-          actions: "addItems" | "addToPreviousQuery" | "cqrs/firstPage" | "cqrs/goto" | "cqrs/lastPage" | "cqrs/nextPage" | "cqrs/previousPage" | "cqrs/reverseItemsOrder" | "escalateBrowserItemsError" | "escalateConfigError" | "escalateDataerror" | "escalateEnvError" | "escalateFetchItemsError" | "escalateFetchRegisteredQueryError" | "escalateRegisteredErrorQuery" | "pagination/firstPage" | "pagination/goto" | "pagination/lastPage" | "pagination/nextPage" | "pagination/previousPage" | "pagination/setCanFetchMoreNext" | "pagination/setCanFetchMorePrevious" | "pagination/setHasNextPage" | "pagination/setHasPreviousPage" | "removeLastQueryMore" | "resetQueriesCache" | "sendCurrentQuery" | "sendQueryMore" | "setAllTotal" | "setCurrentItems" | "setCurrentQuery" | "setDefaultCurrentItems" | "setEnVariables" | "setItemIDs" | "setItems" | "setPageSize" | "setQuery" | "setTotal" | "setTotalPages";
+          actions: "addItems" | "addToPreviousQuery" | "cqrs/firstPage" | "cqrs/goto" | "cqrs/lastPage" | "cqrs/nextPage" | "cqrs/previousPage" | "cqrs/reverseItemsOrder" | "escalateConfigError" | "escalateDataerror" | "escalateEnvError" | "pagination/firstPage" | "pagination/goto" | "pagination/lastPage" | "pagination/nextPage" | "pagination/previousPage" | "pagination/setCanFetchMoreNext" | "pagination/setCanFetchMorePrevious" | "pagination/setHasNextPage" | "pagination/setHasPreviousPage" | "removeLastQueryMore" | "resetQueriesCache" | "setAllTotal" | "setCurrentItems" | "setDefaultCurrentItems" | "setEnVariables" | "setPageSize" | "setTotal" | "setTotalPages";
           delays: "DISPLAY_TIME" | "THROTTLE_TIME";
-          guards: "itemsAreCached" | "itemsAreDefined" | "queryIsCached" | "queryIsDefined";
+          guards: never;
           services: "cqrs" | "fetchItems" | "fetchRegisteredQuery" | "getItems" | "getRegisteredQuery" | "getRequiredEnVariables" | "otherConfig";
         };
         eventsCausingActions: {
@@ -70,13 +70,12 @@
 "sendQueryMore": "";
 "setAllTotal": "CQRS/RECEIVE/ALL_TOTAL";
 "setCurrentItems": "" | "CQRS/RECEIVE/ALL_TOTAL" | "CQRS/RECEIVE/ITEMS" | "CQRS/RECEIVE/MORE" | "xstate.after(DISPLAY_TIME)#table.work.pagination.busy" | "xstate.stop";
-"setCurrentQuery": "CQRS/SEND/MORE" | "CQRS/SEND/QUERY";
+"setCurrentQuery": "CQRS/SEND/MORE" | "CQRS/SEND/QUERY" | "done.invoke.fetchRegisteredQuery" | "done.invoke.getRegisteredQuery";
 "setDefaultCurrentItems": "" | "CQRS/RECEIVE/ALL_TOTAL" | "CQRS/RECEIVE/ITEMS" | "CQRS/RECEIVE/MORE" | "done.invoke.fetchRegisteredQuery" | "done.invoke.getRegisteredQuery" | "error.platform.fetchRegisteredQuery";
 "setEnVariables": "done.invoke.getRequiredEnVariables";
 "setItemIDs": "CQRS/RECEIVE/ITEMS" | "CQRS/RECEIVE/MORE" | "done.invoke.fetchItems" | "done.invoke.getItems";
 "setItems": "CQRS/RECEIVE/ITEMS" | "done.invoke.fetchItems" | "done.invoke.getItems";
 "setPageSize": "" | "CQRS/RECEIVE/ALL_TOTAL" | "CQRS/RECEIVE/ITEMS" | "CQRS/RECEIVE/MORE" | "done.invoke.fetchRegisteredQuery" | "done.invoke.getRegisteredQuery" | "error.platform.fetchRegisteredQuery";
-"setQuery": "done.invoke.fetchRegisteredQuery" | "done.invoke.getRegisteredQuery";
 "setTotal": "" | "CQRS/RECEIVE/ALL_TOTAL" | "CQRS/RECEIVE/ITEMS" | "CQRS/RECEIVE/MORE" | "done.invoke.fetchRegisteredQuery" | "done.invoke.getRegisteredQuery" | "error.platform.fetchRegisteredQuery";
 "setTotalPages": "" | "CQRS/RECEIVE/ALL_TOTAL" | "CQRS/RECEIVE/ITEMS" | "CQRS/RECEIVE/MORE" | "done.invoke.fetchRegisteredQuery" | "done.invoke.getRegisteredQuery" | "error.platform.fetchRegisteredQuery";
         };
@@ -85,10 +84,8 @@
 "THROTTLE_TIME": "" | "CQRS/SEND/REFETCH" | "done.invoke.fetchRegisteredQuery" | "done.invoke.getRegisteredQuery" | "done.state.table.work.cqrs.cacheMore" | "done.state.table.work.cqrs.cacheQuery" | "error.platform.fetchRegisteredQuery";
         };
         eventsCausingGuards: {
-          "itemsAreCached": "";
-"itemsAreDefined": "done.invoke.getRegisteredQuery";
+          "itemsAreDefined": "" | "done.invoke.getRegisteredQuery";
 "queryIsCached": "";
-"queryIsDefined": "";
         };
         eventsCausingServices: {
           "cqrs": "" | "done.invoke.fetchRegisteredQuery" | "done.invoke.getRegisteredQuery" | "error.platform.fetchRegisteredQuery";

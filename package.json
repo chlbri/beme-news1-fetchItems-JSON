@@ -46,6 +46,7 @@
   "devDependencies": {
     "@bemedev/fsf": "^0.6.2",
     "@bemedev/x-test": "0.2.3",
+    "core": "npm:@chlbri/beme-news1-core@^0.1.0",
     "@types/edit-json-file": "^1.7.0",
     "@types/node": "^18.11.17",
     "@typescript-eslint/eslint-plugin": "^5.46.1",
@@ -82,8 +83,9 @@
     "@xstate/immer": "^0.3.1",
     "edit-json-file": "^1.7.0",
     "immer": "^9.0.16",
-    "xstate": "4.35.1",
     "nanoid": "^4.0.0",
+    "xstate": "4.35.1",
+    "core": "npm:@chlbri/beme-news1-core@^0.1.0",
     "zod": "^3.20.2"
   }
 }
