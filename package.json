@@ -1,5 +1,5 @@
 {
-  "version": "0.1.4",
+  "version": "0.0.1",
   "name": "@chlbri/bemedev-news1-services",
   "author": {
     "email": "bri_lvi@icloud.com",
@@ -68,13 +68,20 @@
     "typescript-transform-paths": "^3.4.4",
     "vite": "3.2.4",
     "vite-tsconfig-paths": "^4.0.3",
-    "vitest": "0.25.2"
-  },
-  "dependencies": {
+    "vitest": "0.25.2",
     "@bemedev/fsf": "^0.6.2",
     "@xstate/immer": "^0.3.1",
     "immer": "^9.0.16",
     "xstate": "4.35.1",
+    "zod": "^3.20.2"
+  },
+  "peerDependencies": {
+    "@bemedev/fsf": "^0.6.2",
+    "@xstate/immer": "^0.3.1",
+    "immer": "^9.0.16",
+    "xstate": "4.35.1",
+    "edit-json-file": "^1.7.0",
+    "@types/edit-json-file": "^1.7.0",
     "zod": "^3.20.2"
   }
 }

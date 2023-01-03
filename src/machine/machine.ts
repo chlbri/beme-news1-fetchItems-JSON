@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { assign } from '@xstate/immer';
 import json from 'edit-json-file';
-import { DATA_PATH } from 'src/constants/strings';
 import { createMachine } from 'xstate';
 import { escalate } from 'xstate/lib/actions';
+import { STRINGS } from '~constants';
 import { Article, articlesSchema } from '~types';
 import { Context, Events } from './machine.types';
 
-export const FechArticlesJSON_Machine = createMachine(
+export const FechArticlesJSON = createMachine(
   {
     id: 'fetchArticlesJSON',
     initial: 'idle',
@@ -220,7 +220,7 @@ export const FechArticlesJSON_Machine = createMachine(
     },
     services: {
       fetchArticles: async () => {
-        const file = json(DATA_PATH);
+        const file = json(STRINGS.DATA_PATH);
         return file.get('articles');
       },
       zod: ({ data }) => articlesSchema.parseAsync(data),

@@ -38,10 +38,10 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "~machine": ["./src/machines/main/index.ts"],
-      "~machines/*": ["./src/machines/*"],
-      "~schemas": ["./src/schemas/index.ts"],
-      "~helpers/*": ["./src/helpers/*"]
+      "~types": ["src/types/index.ts"],
+      "~data": ["src/data.json"],
+      "~constants": ["src/constants/index.ts"],
+      "~fixtures": ["./src/fixtures/index.ts"]
     }
   }
 }
