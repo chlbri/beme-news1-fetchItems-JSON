@@ -221,7 +221,8 @@ export const FechArticlesJSON = createMachine(
     services: {
       fetchArticles: async () => {
         const file = json(STRINGS.DATA_PATH);
-        return file.get('articles');
+        const out = file.get('articles'); //?
+        return out;
       },
       zod: ({ data }) => articleSchema.array().parseAsync(data),
     },

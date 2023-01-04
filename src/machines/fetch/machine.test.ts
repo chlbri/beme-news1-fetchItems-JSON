@@ -1,9 +1,15 @@
 import { ALWAYS_TIME, interpret } from '@bemedev/x-test';
+import { Article, articleSchema } from 'core';
 import { describe, test } from 'vitest';
 import { articles } from '~data';
 import { advanceByTime, useTestConfig } from '~fixtures';
-import { articlesSchema } from '~types';
 import { FechArticlesJSON } from './machine';
+
+const articlesSchema = articleSchema.array();
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mapper = ({ id, ...rest }: Article) => {
+  return rest;
+};
 
 const { start, send, context, stop, matches } =
   interpret(FechArticlesJSON);
@@ -23,10 +29,10 @@ describe('Workflow 1', () => {
   test('#03: AdvanceTime', () => advanceByTime(1));
 
   test('#04: Get the all JSON data', () => {
-    const expecteds = articlesSchema.parse(articles);
+    const expecteds = articlesSchema.parse(articles).map(mapper);
     context('CNN', ctx => ctx.source);
-    context(expecteds, ctx => ctx.articles);
     matches('language');
+    context(expecteds, ctx => ctx.articles?.map(mapper));
   });
 
   test('#05: The current state is "language"', () => {
@@ -67,8 +73,9 @@ describe('Workflow 1', () => {
   test('#15: Data are filtered', () => {
     const expecteds = articlesSchema
       .parse(articles)
+      .map(mapper)
       .filter(data => data.source === 'CNN');
-    context(expecteds, ctx => ctx.articles);
+    context(expecteds, ctx => ctx.articles?.map(mapper));
   });
 
   test('#16: The current state is "success"', () => {
@@ -92,8 +99,8 @@ describe('Workflow 2', () => {
   test('#03: AdvanceTime', () => advanceByTime(1));
 
   test('#04: Get the all JSON data', () => {
-    const expecteds = articlesSchema.parse(articles);
-    context(expecteds, ctx => ctx.articles);
+    const expecteds = articlesSchema.parse(articles).map(mapper);
+    context(expecteds, ctx => ctx.articles?.map(mapper));
   });
 
   test('#05: The current state is "language"', () => {
@@ -108,8 +115,9 @@ describe('Workflow 2', () => {
     context('music', ctx => ctx.category);
     const expecteds = articlesSchema
       .parse(articles)
+      .map(mapper)
       .filter(data => data.language === 'fr');
-    context(expecteds, ctx => ctx.articles);
+    context(expecteds, ctx => ctx.articles?.map(mapper));
   });
 
   test('#08: AdvanceTime', () => advanceByTime(ALWAYS_TIME));
@@ -124,8 +132,9 @@ describe('Workflow 2', () => {
     matches('to');
     const expecteds = articlesSchema
       .parse(articles)
+      .map(mapper)
       .filter(data => data.language === 'fr' && data.category === 'music');
-    context(expecteds, ctx => ctx.articles);
+    context(expecteds, ctx => ctx.articles?.map(mapper));
   });
 
   test('#12: AdvanceTime', () => advanceByTime(ALWAYS_TIME));
@@ -175,8 +184,8 @@ describe('Workflow 3', () => {
   });
 
   test('#07:  Articles remains same', () => {
-    const expecteds = articlesSchema.parse(articles);
-    context(expecteds, ctx => ctx.articles);
+    const expecteds = articlesSchema.parse(articles).map(mapper);
+    context(expecteds, ctx => ctx.articles?.map(mapper));
   });
 
   test('#08: AdvanceTime', () => advanceByTime(1));
@@ -184,8 +193,9 @@ describe('Workflow 3', () => {
   test('#09: Artcles are filtered by "from"', () => {
     const expecteds = articlesSchema
       .parse(articles)
+      .map(mapper)
       .filter(data => data.publishedAt >= from);
-    context(expecteds, ctx => ctx.articles);
+    context(expecteds, ctx => ctx.articles?.map(mapper));
   });
 
   test('#10: The current state is "to"', () => {
@@ -198,8 +208,9 @@ describe('Workflow 3', () => {
   test('#12: Artcles are filtered by "to"', () => {
     const expecteds = articlesSchema
       .parse(articles)
+      .map(mapper)
       .filter(data => data.publishedAt >= from && data.publishedAt <= to);
-    context(expecteds, ctx => ctx.articles);
+    context(expecteds, ctx => ctx.articles?.map(mapper));
   });
 
   test('#13: The current state is "source"', () => {

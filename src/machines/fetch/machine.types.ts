@@ -1,5 +1,4 @@
-import { Article } from 'core';
-import { Category, Language } from '~types';
+import { Article, Category, Language } from 'core';
 
 export type Context = Omit<Events, 'type'> & {
   data?: unknown;

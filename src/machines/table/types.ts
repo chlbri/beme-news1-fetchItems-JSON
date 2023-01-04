@@ -1,5 +1,5 @@
 import { WithoutID } from 'core';
-import { Article } from '~types';
+import { Article } from 'core';
 
 export type Cache = { query: string; ids: string[] };
 

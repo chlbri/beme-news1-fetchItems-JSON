@@ -8,7 +8,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^5.46.1
   '@typescript-eslint/parser': ^5.46.1
   '@xstate/immer': ^0.3.1
-  core: npm:@chlbri/beme-news1-core@^0.1.0
+  core: npm:@chlbri/beme-news1-core@^0.1.2
   edit-json-file: ^1.7.0
   eslint: ^8.30.0
   git-last-commit: ^1.0.1
@@ -42,7 +42,7 @@ devDependencies:
   '@typescript-eslint/eslint-plugin': 5.47.0_ncmi6noazr3nzas7jxykisekym
   '@typescript-eslint/parser': 5.47.0_lzzuuodtsqwxnvqeq4g4likcqa
   '@xstate/immer': 0.3.1_immer@9.0.16+xstate@4.35.1
-  core: /@chlbri/beme-news1-core/0.1.0_v3cm7vbeqpxibymbkuxcuh6lxi
+  core: /@chlbri/beme-news1-core/0.1.2_v3cm7vbeqpxibymbkuxcuh6lxi
   edit-json-file: 1.7.0
   eslint: 8.30.0
   git-last-commit: 1.0.1
@@ -114,8 +114,8 @@ packages:
     resolution: {integrity: sha512-iZf+UWfL+DogJVpd/xMQyP6X6McYd6ArdYoPMiv/zlOTzeXXfQbYxBNJJBF6tThvsjLMbA8tLjkCdm9RWMFCCw==}
     dev: true
 
-  /@chlbri/beme-news1-core/0.1.0_v3cm7vbeqpxibymbkuxcuh6lxi:
-    resolution: {integrity: sha512-DhKOFF/tuoutFeC5h3sh/FXN9xLpF7nqf9EMY4i3wN5PFws1bmH+kJNYst8SY3l98ssvr1tRfmNT9gkQK9n1GQ==, tarball: download/@chlbri/beme-news1-core/0.1.0/d944da731c0837a18560d7f89290706c7d92848c}
+  /@chlbri/beme-news1-core/0.1.2_v3cm7vbeqpxibymbkuxcuh6lxi:
+    resolution: {integrity: sha512-FM/sXLmHUGgxeFqU8m8yyTLEtbrlR7LKXyrEzimixsUGip37GmckEmE2NkpP5aQ5fQj8K+6CekAdxYtli8v/lw==, tarball: download/@chlbri/beme-news1-core/0.1.2/c3a87044cdf2a55d54161c2d3678fd3f1228b828}
     engines: {node: '>=14'}
     peerDependencies:
       '@xstate/immer': ^0.3.1
