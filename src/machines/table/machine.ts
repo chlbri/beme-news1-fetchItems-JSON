@@ -5,6 +5,8 @@ import { escalate } from 'xstate/lib/actions';
 import { _queryIsCached } from './functions';
 import { Context, Events, Services } from './types';
 
+//TODO: Stringify items 
+//TODO: Build current items only
 export const TableItems = createMachine(
   {
     predictableActionArguments: true,
@@ -16,123 +18,69 @@ export const TableItems = createMachine(
       services: {} as Services,
     },
     context: {},
-
     id: 'table',
     initial: 'config',
     states: {
       cache: {
-        initial: 'browser',
-        states: {
-          browser: {
-            initial: 'items',
-            states: {
-              items: {
-                invoke: {
-                  src: 'getItems',
-                  id: 'getItems',
-                  onDone: [
-                    {
-                      target: 'query',
-                      actions: ['setItems', 'setItemIDs'],
-                    },
-                  ],
-                  onError: [
-                    {
-                      target: 'query',
-                      actions: 'escalateBrowserItemsError',
-                    },
-                  ],
-                },
-              },
-              query: {
-                invoke: {
-                  src: 'getRegisteredQuery',
-                  id: 'getRegisteredQuery',
-                  onDone: [
-                    {
-                      target: '#table.work',
-                      cond: 'itemsAreDefined',
-                      actions: 'setCurrentQuery',
-                    },
-                    {
-                      target: '#table.cache.fetch',
-                      actions: 'setCurrentQuery',
-                    },
-                  ],
-                  onError: [
-                    {
-                      target: '#table.cache.fetch',
-                      actions: 'escalateRegisteredErrorQuery',
-                    },
-                  ],
-                },
-              },
+        invoke: {
+          src: 'cache',
+          id: 'cache',
+          onDone: [
+            {
+              target: 'work',
+              actions: [
+                'setItems',
+                'setItemIDs',
+                'setQuery',
+                'addQueryToCache',
+              ],
             },
-          },
-          fetch: {
-            initial: 'items',
-            states: {
-              items: {
-                invoke: {
-                  src: 'fetchItems',
-                  id: 'fetchItems',
-                  onDone: [
-                    {
-                      target: 'checkQuery',
-                      actions: ['setItems', 'setItemIDs'],
-                    },
-                  ],
-                  onError: [
-                    {
-                      target: 'checkQuery',
-                      actions: 'escalateFetchItemsError',
-                    },
-                  ],
-                },
-              },
-              query: {
-                invoke: {
-                  src: 'fetchRegisteredQuery',
-                  id: 'fetchRegisteredQuery',
-                  onDone: [
-                    {
-                      target: '#table.work',
-                      actions: 'setCurrentQuery',
-                    },
-                  ],
-                  onError: [
-                    {
-                      target: '#table.work',
-                      actions: 'escalateFetchRegisteredQueryError',
-                    },
-                  ],
-                },
-              },
-              checkQuery: {
-                always: [
-                  {
-                    target: '#table.work',
-                    cond: 'queryIsCached',
-                  },
-                  {
-                    target: 'query',
-                  },
-                ],
-              },
+          ],
+          onError: [
+            {
+              target: 'work',
+              actions: 'escalateCacheError',
             },
-          },
+          ],
         },
       },
       config: {
+        description:
+          'Everything you need to configure before running anything',
         initial: 'environment',
         states: {
-          environment: {
+          error: {
+            on: {
+              RINIT: {
+                target: '#table.config',
+              },
+            },
+          },
+          optional: {
+            description: 'A specific config (optional) you want to add',
             invoke: {
-              src: 'getRequiredEnVariables',
-              id: 'getRequiredEnVariables',
+              src: 'optional',
+              id: 'optional',
+              onError: [
+                {
+                  target: 'error',
+                  actions: 'escalateConfigError',
+                },
+              ],
               onDone: [
                 {
-                  target: 'other',
+                  target: '#table.cache',
+                },
+              ],
+            },
+          },
+          environment: {
+            invoke: {
+              src: 'getEnVariables',
+              id: 'getEnVariables',
+              onDone: [
+                {
+                  target: 'optional',
                   actions: 'setEnVariables',
                 },
               ],
@@ -142,30 +90,6 @@ export const TableItems = createMachine(
                   actions: 'escalateEnvError',
                 },
               ],
-            },
-          },
-          other: {
-            invoke: {
-              src: 'otherConfig',
-              id: 'otherConfig',
-              onDone: [
-                {
-                  target: '#table.cache.browser',
-                },
-              ],
-              onError: [
-                {
-                  target: 'error',
-                  actions: 'escalateConfigError',
-                },
-              ],
-            },
-          },
-          error: {
-            on: {
-              RINIT: {
-                target: '#table.config',
-              },
             },
           },
         },
@@ -179,7 +103,7 @@ export const TableItems = createMachine(
               onError: [
                 {
                   target: '#table.config.error',
-                  actions: 'escalateDataerror',
+                  actions: 'escalateDataError',
                 },
               ],
             },
@@ -190,6 +114,7 @@ export const TableItems = createMachine(
                   THROTTLE_TIME: {
                     target: '#table.work.cqrs.ready',
                     actions: [],
+                    internal: false,
                   },
                 },
               },
@@ -198,34 +123,38 @@ export const TableItems = createMachine(
                 on: {
                   'CQRS/SEND/CREATE': {
                     target: 'resetCache',
+                    actions: 'cqrs/create',
                   },
                   'CQRS/SEND/UPDATE': {
                     target: 'resetCache',
+                    actions: 'cqrs/update',
                   },
                   'CQRS/SEND/QUERY': {
                     target: 'cacheQuery',
-                    actions: 'setCurrentQuery',
+                    actions: ['setQuery', 'addQueryToCache'],
                   },
                   'CQRS/SEND/REMOVE': {
                     target: 'resetCache',
+                    actions: 'cqrs/remove',
                   },
                   'CQRS/SEND/DELETE': {
                     target: 'resetCache',
+                    actions: 'cqrs/delete',
                   },
                   'CQRS/SEND/MORE': {
                     target: 'cacheMore',
-                    actions: 'setCurrentQuery',
+                    actions: ['setQuery', 'addQueryToCache'],
                   },
                   'CQRS/SEND/REFETCH': {
                     target: 'busy',
-                    actions: 'sendCurrentQuery',
+                    actions: 'cqrs/refetch',
                   },
                 },
               },
               resetCache: {
-                entry: 'resetQueriesCache',
                 always: {
                   target: 'busy',
+                  actions: 'resetQueriesCache',
                 },
               },
               cacheQuery: {
@@ -249,7 +178,7 @@ export const TableItems = createMachine(
                         always: [
                           {
                             target: 'items',
-                            cond: 'itemsAreDefined',
+                            cond: 'itemsAreCached',
                           },
                           {
                             target: 'send',
@@ -257,7 +186,7 @@ export const TableItems = createMachine(
                         ],
                       },
                       send: {
-                        entry: 'sendCurrentQuery',
+                        entry: 'cqrs/query',
                         type: 'final',
                       },
                       items: {
@@ -268,7 +197,7 @@ export const TableItems = createMachine(
                     type: 'final',
                   },
                   send: {
-                    entry: 'sendCurrentQuery',
+                    entry: 'cqrs/query',
                     type: 'final',
                   },
                 },
@@ -277,7 +206,7 @@ export const TableItems = createMachine(
                 },
               },
               cacheMore: {
-                exit: 'removeLastQueryMore',
+                exit: 'removeLastQuery',
                 initial: 'check',
                 states: {
                   check: {
@@ -299,7 +228,7 @@ export const TableItems = createMachine(
                         always: [
                           {
                             target: 'items',
-                            cond: 'itemsAreDefined',
+                            cond: 'itemsAreCached',
                           },
                           {
                             target: 'send',
@@ -307,7 +236,7 @@ export const TableItems = createMachine(
                         ],
                       },
                       send: {
-                        entry: 'sendQueryMore',
+                        entry: 'cqrs/more',
                         type: 'final',
                       },
                       items: {
@@ -318,7 +247,7 @@ export const TableItems = createMachine(
                     type: 'final',
                   },
                   send: {
-                    entry: 'sendQueryMore',
+                    entry: 'cqrs/more',
                     type: 'final',
                   },
                 },
@@ -337,7 +266,7 @@ export const TableItems = createMachine(
             entry: [
               'setTotal',
               'setTotalPages',
-              'setDefaultCurrentItems',
+              'setDefaultPage',
               'setPageSize',
             ],
             initial: 'busy',
@@ -411,37 +340,58 @@ export const TableItems = createMachine(
   },
   {
     guards: {
-      itemsAreDefined: context => {
+      itemsAreCached: context => {
         const items = context.cqrs?.items;
-        return !!items && items?.length > 0;
+        return !!items && items?.size > 0;
       },
       queryIsCached: ({ cqrs }) => {
         return _queryIsCached(cqrs);
       },
     },
     actions: {
+      setEnVariables: assign((context, { data }) => {
+        context.environment = data;
+      }),
+      escalateEnvError: escalate('ENVIRONMENT_ERROR'),
+      escalateConfigError: escalate('CONFIG_ERROR'),
       setItems: assign((context, event) => {
-        assignObject(context.cqrs?.items, event.data);
+        const items = new Set(event.data?.items);
+        assignObject(context.cqrs?.items, items);
+      }),
+      addItems: assign((context, event) => {
+        const items = event.data?.items ?? [];
+        const _items = context.cqrs?.items;
+        items.forEach(item => _items?.add(item));
       }),
       setItemIDs: assign(context => {
-        const itemIDs = context.cqrs?.items?.map(item => item.id);
+        const items = context.cqrs?.items?.values();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const itemIDs = Array.from(items!).map(item => item.id);
         context.cqrs = {
           ...context.cqrs,
           itemIDs,
         };
       }),
-      escalateBrowserItemsError: escalate('BROWSER_ITEMS_ERROR'),
-      escalateRegisteredErrorQuery: escalate('REGISTERED_ERROR_QUERY'),
-      escalateFetchItemsError: escalate('FETCH_ITEMS_ERROR'),
-      escalateFetchRegisteredQueryError: escalate('FETCH_ERROR_QUERY'),
-      setCurrentQuery: assign((context, event) => {
-        const currentQuery = event.data;
+      setQuery: assign((context, event) => {
+        const currentQuery = event.data?.query;
         context.cqrs = {
           ...context.cqrs,
           currentQuery,
         };
       }),
-      sendCurrentQuery: send(
+      addQueryToCache: assign((context, event) => {
+        const _query = event.data?.query;
+        if (!_query) return;
+        const query = JSON.stringify(_query);
+        const caches = context.cqrs?.caches;
+        const ids = context.cqrs?.itemIDs;
+        if (!ids) return;
+        caches?.push({ ids, query });
+      }),
+      escalateCacheError: escalate((_, { data }) => data),
+
+      // #region CQRS
+      'cqrs/query': send(
         context => {
           const query = context.cqrs?.currentQuery;
           return { type: 'QUERY', query };
@@ -450,7 +400,8 @@ export const TableItems = createMachine(
           to: 'cqrs',
         },
       ),
-      sendQueryMore: send(
+
+      'cqrs/more': send(
         context => {
           const query = context.cqrs?.currentQuery;
           return { type: 'MORE', query };
@@ -459,6 +410,65 @@ export const TableItems = createMachine(
           to: 'cqrs',
         },
       ),
+
+      'cqrs/create': send((_, { data }) => {
+        return { type: 'CREATE', data };
+      }),
+
+      'cqrs/update': send((_, { data }) => {
+        return { type: 'UPDATE', data };
+      }),
+
+      'cqrs/delete': send((_, { data }) => {
+        return { type: 'DELETE', data };
+      }),
+
+      'cqrs/remove': send((_, { data }) => {
+        return { type: 'REMOVE', data };
+      }),
+      // #endregion
+
+      // #region Pagination
+      'pagination/firstPage': assign(context => {
+        context.pagination = {
+          ...context.pagination,
+          currentPage: 0,
+        };
+      }),
+
+      'pagination/lastPage': assign(context => {
+        const totalPages = context.pagination?.totalPages ?? 1;
+        context.pagination = {
+          ...context.pagination,
+          currentPage: totalPages - 1,
+        };
+      }),
+
+      'pagination/nextPage': assign(context => {
+        const currentPage = (context.pagination?.currentPage ?? -1) + 1;
+        context.pagination = {
+          ...context.pagination,
+          currentPage,
+        };
+      }),
+
+      'pagination/previousPage': assign(context => {
+        const currentPage = (context.pagination?.currentPage ?? 1) - 1;
+        context.pagination = {
+          ...context.pagination,
+          currentPage,
+        };
+      }),
+
+      'pagination/goto': assign((context, event) => {
+        const page = event.data?.page ?? 0;
+        context.pagination = {
+          ...context.pagination,
+          currentPage: page,
+        };
+      }),
+
+      // #endregion
     },
   },
 );
